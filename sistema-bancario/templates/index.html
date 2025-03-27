@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema Bancário - Login</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/login.css') }}"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        background-color: #f5f6fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .login-container {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+      }
+
+      h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 2rem;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #34495e;
+      }
+
+      input {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #bdc3c7;
+        border-radius: 4px;
+      }
+
+      button {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      button:hover {
+        background-color: #2980b9;
+      }
+
+      .toggle-form {
+        text-align: center;
+        margin-top: 1rem;
+      }
+
+      .toggle-form a {
+        color: #3498db;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <!-- Login Form -->
+      <div id="loginForm">
+        <h1>Login</h1>
+        <form onsubmit="return handleLogin(event)">
+          <div class="form-group">
+            <label for="cpfLogin">CPF:</label>
+            <input type="text" id="cpfLogin" maxlength="11" required />
+          </div>
+          <div class="form-group">
+            <label for="senhaLogin">Senha:</label>
+            <div class="password-input">
+              <input type="password" id="senhaLogin" required />
+              <i class="fas fa-eye" onclick="togglePassword('senhaLogin')"></i>
+            </div>
+          </div>
+          <button type="submit">Entrar</button>
+        </form>
+        <div class="toggle-form">
+          <p>
+            Não tem conta? <a href="#" onclick="toggleForms()">Cadastre-se</a>
+          </p>
+        </div>
+      </div>
+
+      <!-- Cadastro Form -->
+      <div id="cadastroForm" style="display: none">
+        <h1>Cadastro</h1>
+        <form onsubmit="return handleCadastro(event)">
+          <div class="form-group">
+            <label for="nome">Nome Completo:</label>
+            <input type="text" id="nome" required />
+          </div>
+          <div class="form-group">
+            <label for="cpfCadastro">CPF:</label>
+            <input type="text" id="cpfCadastro" maxlength="11" required />
+          </div>
+          <div class="form-group">
+            <label for="senhaCadastro">Senha:</label>
+            <div class="password-input">
+              <input
+                type="password"
+                id="senhaCadastro"
+                required
+                minlength="6"
+              />
+              <i
+                class="fas fa-eye"
+                onclick="togglePassword('senhaCadastro')"
+              ></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="confirmarSenha">Confirmar Senha:</label>
+            <div class="password-input">
+              <input
+                type="password"
+                id="confirmarSenha"
+                required
+                minlength="6"
+              />
+              <i
+                class="fas fa-eye"
+                onclick="togglePassword('confirmarSenha')"
+              ></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="dataNascimento">Data de Nascimento:</label>
+            <input type="date" id="dataNascimento" required />
+          </div>
+          <div class="form-group">
+            <label for="endereco">Endereço:</label>
+            <input type="text" id="endereco" required />
+          </div>
+          <button type="submit">Cadastrar</button>
+        </form>
+        <div class="toggle-form">
+          <p>
+            Já tem conta? <a href="#" onclick="toggleForms()">Fazer Login</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function toggleForms() {
+        const loginForm = document.getElementById("loginForm");
+        const cadastroForm = document.getElementById("cadastroForm");
+
+        if (loginForm.style.display === "none") {
+          loginForm.style.display = "block";
+          cadastroForm.style.display = "none";
+        } else {
+          loginForm.style.display = "none";
+          cadastroForm.style.display = "block";
+        }
+      }
+
+      async function handleLogin(event) {
+        event.preventDefault();
+        const cpf = document.getElementById("cpfLogin").value;
+        const senha = document.getElementById("senhaLogin").value;
+
+        try {
+          const response = await fetch("/api/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ cpf, senha }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            localStorage.setItem("cpfUsuario", cpf);
+            localStorage.setItem("nomeUsuario", data.nome);
+            window.location.href = "/dashboard";
+          } else {
+            alert(data.message || "CPF ou senha incorretos");
+          }
+        } catch (error) {
+          console.error("Erro:", error);
+          alert("Erro ao fazer login");
+        }
+      }
+
+      async function handleCadastro(event) {
+        event.preventDefault();
+        const senha = document.getElementById("senhaCadastro").value;
+        const confirmarSenha = document.getElementById("confirmarSenha").value;
+
+        if (senha !== confirmarSenha) {
+          alert("As senhas não coincidem!");
+          return;
+        }
+
+        const dados = {
+          nome: document.getElementById("nome").value,
+          cpf: document.getElementById("cpfCadastro").value,
+          senha: senha,
+          dataNascimento: document.getElementById("dataNascimento").value,
+          endereco: document.getElementById("endereco").value,
+        };
+
+        try {
+          const response = await fetch("/api/cadastro", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dados),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            alert("Cadastro realizado com sucesso!");
+            toggleForms();
+          } else {
+            alert(data.message || "Erro ao cadastrar usuário");
+          }
+        } catch (error) {
+          console.error("Erro:", error);
+          alert("Erro ao cadastrar usuário");
+        }
+      }
+
+      function logout() {
+        window.location.href = "/";
+      }
+    </script>
+  </body>
+</html>
