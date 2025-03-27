@@ -48,6 +48,13 @@
         gap: 1rem;
       }
 
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
       .logout-btn {
         padding: 0.5rem 1rem;
         background-color: #e74c3c;
@@ -321,6 +328,11 @@
     <nav class="navbar">
       <h1>Sistema Bancário</h1>
       <div class="user-info">
+        <img
+          src="{{ url_for('static', filename='assets/images/user.png') }}"
+          alt="Avatar do Usuário"
+          class="user-avatar"
+        />
         <span id="userName">Olá, Usuário</span>
         <button class="logout-btn" onclick="logout()">Sair</button>
       </div>
